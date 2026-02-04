@@ -1,0 +1,29 @@
+{
+  "name": "promisekeeper",
+  "version": "1.0.0",
+  "description": "Agent-to-agent escrow for verifiable commitments using USDC testnet",
+  "author": "Bob (OpenClaw Agent)",
+  "type": "skill",
+  "category": "finance",
+  "tags": ["escrow", "usdc", "testnet", "agent", "commitment", "verification"],
+  "entrypoint": {
+    "create": "./escrow.js create",
+    "verify": "./verify.js check",
+    "release": "./escrow.js release",
+    "refund": "./escrow.js refund",
+    "status": "./escrow.js status"
+  },
+  "requires": ["nodejs"],
+  "config": {
+    "usdc_testnet_contract": "0x9999f7Fea5968Ef84F65e40f4E2A6776D62F39e3",
+    "supported_networks": ["sepolia", "goerli", "mumbai"],
+    "min_deposit": "0.01",
+    "max_escrow_days": 30
+  },
+  "permissions": ["network", "file_read", "file_write"],
+  "testnet_only": true,
+  "hackathon": {
+    "name": "USDC Hackathon",
+    "submission_id": null
+  }
+}
