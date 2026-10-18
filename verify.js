@@ -24,15 +24,17 @@ function savePromises(data) {
 }
 
 function parseVerificationSpec(spec) {
-  const parts = spec.split(':');
-  const type = parts[0];
+  const separator = spec.indexOf(':');
+  const type = separator === -1 ? spec : spec.slice(0, separator);
   const params = {};
   
-  if (parts[1]) {
-    parts[1].split(',').forEach(part => {
-      const [key, value] = part.split('=');
-      if (key && value) {
-        params[key] = value;
+  if (separator !== -1) {
+    spec.slice(separator + 1).split(',').forEach(part => {
+      const equals = part.indexOf('=');
+      if (equals > 0) {
+        // Colons and additional equals signs belong to the value (e.g.
+        // ISO timestamps and URLs). Preserve empty values for validation.
+        params[part.slice(0, equals)] = part.slice(equals + 1);
       }
     });
   }
@@ -121,6 +123,20 @@ function verifyGitCommit(params) {
 
 function verifyFileExists(params) {
   const { path: filePath, created_after, modified_after } = params;
+  const thresholds = {};
+  for (const field of ['created_after', 'modified_after']) {
+    if (Object.prototype.hasOwnProperty.call(params, field)) {
+      const timestamp = Date.parse(params[field]);
+      if (!Number.isFinite(timestamp)) {
+        return {
+          fulfilled: false,
+          reason: `Invalid ${field} timestamp: ${params[field]}`,
+          proof: null
+        };
+      }
+      thresholds[field] = timestamp;
+    }
+  }
   
   console.log(`🔍 Verifying file existence: ${filePath}`);
   
@@ -145,9 +161,8 @@ function verifyFileExists(params) {
   console.log(`   Modified: ${modified.toISOString()}`);
   
   // Check creation time if specified
-  if (created_after) {
-    const afterDate = new Date(created_after);
-    if (created <= afterDate) {
+  if (thresholds.created_after !== undefined) {
+    if (created.getTime() <= thresholds.created_after) {
       return {
         fulfilled: false,
         reason: `File created ${created.toISOString()}, but must be after ${created_after}`,
@@ -158,9 +173,8 @@ function verifyFileExists(params) {
   }
   
   // Check modification time if specified
-  if (modified_after) {
-    const afterDate = new Date(modified_after);
-    if (modified <= afterDate) {
+  if (thresholds.modified_after !== undefined) {
+    if (modified.getTime() <= thresholds.modified_after) {
       return {
         fulfilled: false,
         reason: `File modified ${modified.toISOString()}, but must be after ${modified_after}`,

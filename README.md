@@ -123,6 +123,10 @@ Verifies that specified files were committed with minimum content.
 ```
 Checks for file creation/modification with timestamps.
 
+Timestamp values may contain ISO8601 time and timezone separators. Supplied
+`created_after` and `modified_after` values must be valid, nonempty timestamps;
+invalid values fail verification instead of silently skipping the check.
+
 ### 3. API Call Verification
 ```bash
 --verification "api:url=https://api.example.com/status,response_contains=success,status_code=200"
@@ -286,6 +290,12 @@ I just failed to complete promised tasks because I got distracted by config work
 - [ ] **Cross-chain** - Bridge to other L1s/L2s
 
 ---
+
+## Local regression tests
+
+Run `node --test test/verify.test.js` with Node.js 18+. These tests use temporary
+files and promise records; they do not execute escrow commands or contact any
+external services.
 
 ## License
 
