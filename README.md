@@ -117,6 +117,12 @@ PromiseKeeper supports multiple automated verification types:
 ```
 Verifies that specified files were committed with minimum content.
 
+For a separate read-only inspection of an explicit repository and immutable commit,
+see [Git Artifact Receipts](GIT-ARTIFACT-RECEIPTS.md). The optional tool checks actual
+committed blob contents rather than a mutable working copy. Its narrow receipt is
+not a promise-completion signal or authorization to release funds; existing demo
+verification and escrow behavior remain unchanged and are not certified by it.
+
 ### 2. File Existence Verification
 ```bash
 --verification "file:path=output/report.pdf,created_after=2026-02-04T00:00:00Z"
